@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aplicación BETANIA – BAKERY</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Baguette+Script&family=Aptos+Display&display=swap" rel="stylesheet" />
+
+<style>
+  /* Fuentes generales y body */
+  body {
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    margin: 0; padding: 0; background: #f4f4f4;
+  }
+
+  /* Contenedor de cada pantalla */
+  .pantalla {
+    display: none;
+    padding: 20px; /* Espacio general */
+    padding-bottom: 100px; /* Ajuste para dejar espacio abajo para pie de página y botones */
+    max-width: 500px;
+    margin: 30px auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative; /* Permite posicionar elementos hijos absolutamente */
+    min-height: 400px; /* Altura mínima para acomodar contenido y pie */
+  }
+  .pantalla.activa {
+    display: block;
+  }
+
+  /* Asegura que el contenido principal tenga espacio abajo */
+  .pantalla > *:not(.encabezado):not(.titulo-pantalla):not(.botones-pie):not(.pie-copyright):not(.help-info-box) {
+      margin-bottom: 15px; /* Espacio entre el contenido y los botones */
+  }
+
+
+  /* Encabezado BETANIA – BAKERY */
+  .encabezado {
+    font-family: "Baguette Script", cursive;
+    font-size: 2.5rem;
+    color: #6a4c93;
+    text-align: center;
+    margin-bottom: 5px;
+    user-select: none;
+  }
+
+  /* Títulos de cada pantalla (solo título original, sin "Pantalla X") */
+  h2.titulo-pantalla {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: normal;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    text-align: center;
+  }
+
+  /* Botones principales (los "normales") */
+  button {
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+    padding: 12px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #333; /* Color por defecto para la mayoría de botones */
+  }
+
+  /* Elementos de formulario (input, select) para Pantalla 3 */
+  .form-element {
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    padding: 12px;
+    margin: 8px 0;
+    font-size: 1rem;
+    border-radius: 5px;
+    box-sizing: border-box; /* Include padding in width */
+    width: 100%; /* Default width */
+  }
+
+  .form-row {
+    display: flex;
+    gap: 15px; /* Space between columns */
+    margin-bottom: 8px;
+  }
+
+  .form-column {
+    flex: 1; /* Make columns equal width */
+  }
+
+  /* Estilo específico para el contenedor del select y el botón en la 3ra fila */
+  .select-with-button {
+      display: flex;
+      align-items: center;
+      gap: 10px; /* Espacio entre el select y el botón */
+      flex-grow: 1; /* Permite que este contenedor dentro de form-column ocupe espacio */
+  }
+
+   /* Estilo específico para los campos de visualización en Pantalla 3 (no los select) */
+  .input-display {
+    background-color: #ffd6a5; /* Color pastel naranja de 'Crear Recetas'*/
+    border: none;
+    pointer-events: none; /* Make it non-interactive */
+    text-align: center;
+  }
+
+  /* Estilo específico para los select en Pantalla 3 */
+  select.form-element {
+    background-color: white; /* Fondo blanco */
+    border: 1px solid black; /* Borde negro */
+    cursor: pointer;
+    flex-grow: 1; /* Permite que el select dentro de select-with-button ocupe el espacio restante */
+  }
+
+    /* Estilo para el botón redondo de ayuda */
+  .help-button {
+    width: 30px; /* Tamaño fijo */
+    height: 30px; /* Tamaño fijo */
+    border-radius: 50%; /* Redondo */
+    border: 1px solid black; /* Borde negro */
+    background-color: white; /* Fondo blanco */
+    color: black; /* Texto negro */
+    font-size: 1rem; /* Ajustar tamaño del signo */
+    padding: 0; /* Sin padding interno */
+    display: flex; /* Usar flex para centrar contenido */
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    flex-shrink: 0; /* Evita que el botón se encoja */
+    transition: background-color 0.2s ease;
+  }
+
+  .help-button:hover {
+      background-color: #eee; /* Ligero cambio de fondo al pasar el ratón */
+  }
+
+   /* Estilo para el cuadro de información de ayuda */
+  .help-info-box {
+    display: none; /* Oculto por defecto */
+    position: absolute; /* Posicionamiento absoluto respecto al padre (.pantalla) */
+    bottom: 120px; /* Ajustar según sea necesario para que esté por encima de los botones de pie y copyright */
+    left: 20px;
+    right: 20px;
+    background-color: #fff9e6; /* Fondo pastel claro (ej: amarillo/beige) */
+    border: 1px solid #ffc107; /* Borde a juego (ej: naranja) */
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-size: 0.9rem;
+    color: #333;
+    z-index: 10; /* Asegura que esté por encima de otros elementos */
+    white-space: pre-wrap; /* Mantiene saltos de línea si el texto los tiene */
+    pointer-events: none; /* Permite clics a través de la caja */
+    opacity: 0; /* Inicia transparente */
+    transition: opacity 0.3s ease; /* Transición suave */
+  }
+
+  .help-info-box.visible {
+      display: block; /* Mostrar la caja */
+      opacity: 1; /* Hacerla visible */
+  }
+
+
+  /* Colores pastel para botones principales según función */
+  #btnConsultarRecetas,
+  #btnPreparacionSal,
+  #btnEntradas,
+  #btnCarnes,
+  #btnPostres,
+  #btnCarnesAgridulces {
+    background-color: #a8dadc; /* pastel azul */
+  }
+  #btnCrearRecetas,
+  #btnPreparacionDulce,
+  #btnPlatosPrincipales,
+  #btnPollo,
+  #btnPanaderia,
+  #btnSalsasAgridulces {
+    background-color: #ffd6a5; /* pastel naranja */
+  }
+  #btnModificarRecetas,
+  #btnPreparacionAgridulce,
+  #btnGuarniciones,
+  #btnPastas,
+  #btnFrutasAfin,
+  #btnEnsaladasFrutas {
+    background-color: #cdb4db; /* pastel lila */
+  }
+  /* Otros botones con colores pastel variados */
+  #btnSalsaCondimento,
+  #btnArroces,
+  #btnBebidasOtros,
+  #btnPlatosAsiaticos {
+    background-color: #ffe5d9; /* pastel melocotón claro */
+  }
+  #btnGuisosSopas { /* Mantener solo una definición para cada ID */
+    background-color: #b5ead7; /* pastel verde agua */
+  }
+   /* Corregir IDs duplicados si existen y asignarles un color si es necesario, o usar los existentes */
+   #btnCarnesAgridulces, #btnPlatosAsiaticos {
+       background-color: #b5eadc; /* Unificamos a pastel azul si hay duplicados */
+   }
+
+
+    /* Botón Guardar y Continuar en Pantalla 3 - Nuevo color, ejemplo verde */
+  #btnGuardarContinuar {
+    background-color: #80b918; /* Verde lima */
+    color: white; /* Texto blanco para contraste */
+    margin-top: 20px; /* Add some space above */
+  }
+
+
+  /* Hover para todos los botones de acción */
+  button:hover {
+    filter: brightness(0.9);
+  }
+
+    /* Hover para el botón Guardar y Continuar */
+  #btnGuardarContinuar:hover {
+    filter: brightness(0.85);
+  }
+
+
+  /* Contenedor de botones "Atrás", "Menú Principal", "Salir" en fila */
+  /* Volvemos a posicionamiento absoluto */
+  .botones-pie {
+    position: absolute; /* Posicionamiento absoluto respecto al padre (.pantalla) */
+    bottom: 40px; /* Espacio desde abajo, ajustado para dejar hueco al copyright */
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    width: calc(100% - 40px); /* Ajustar ancho para compensar el padding de .pantalla */
+  }
+
+
+  /* Botones pie, con tamaño fijo, colores de fondo pastel */
+  .botones-pie button {
+    flex: 1 1 auto;
+    padding: 10px 0;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+  }
+  /* Colores para botones pie: */
+  /* Atrás: pastel celeste */
+  .btn-atras {
+    background-color: #90e0ef;
+  }
+  /* Menú Principal: pastel lavanda */
+  .btn-menu-principal {
+    background-color: #bdb2ff;
+  }
+  /* Salir: pastel rosa suave */
+  .btn-salir {
+    background-color: #ffb7b2;
+  }
+
+  /* Color de texto negro para los botones de pie */
+   .botones-pie .btn-atras,
+   .botones-pie .btn-menu-principal,
+   .botones-pie .btn-salir {
+       color: black; /* Letras en color negro */
+   }
+
+
+  /* Hover para botones pie */
+  .botones-pie button:hover {
+    filter: brightness(0.85);
+  }
+
+  /* COPYRIGHT al final de cada pantalla */
+  /* Sigue en flujo normal, aparecerá después de .botones-pie */
+  .pie-copyright {
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: 85px; /* Espacio para que el copyright quede debajo del espacio reservado para .botones-pie */
+    padding-top: 10px; /* Espacio interno superior si se necesita */
+    border-top: 1px solid #eee; /* Línea sutil si se desea separarlo visualmente */
+    user-select: none;
+  }
+
+  /* Parte "COPYRIGHT @" en Aptos Display */
+  .pie-copyright .aptos {
+    font-family: 'Aptos Display', serif;
+    font-weight: 600;
+    color: #555;
+    margin-right: 5px;
+  }
+  /* Nombre en Brush Script MT */
+  .pie-copyright .brushscript {
+    font-family: 'Brush Script MT', cursive;
+    font-weight: normal;
+    color: #333;
+  }
+
+</style>
+</head>
+<body>
+
+<div id="pantalla1" class="pantalla activa">
+  <div class="encabezado">BETANIA – BAKERY</div>
+  <h2 class="titulo-pantalla">Menú Principal</h2>
+  <button id="btnConsultarRecetas">Consultar Recetas</button>
+  <button id="btnCrearRecetas">Crear Recetas</button>
+  <button id="btnModificarRecetas">Modificar Recetas</button>
+
+  <div class="botones-pie">
+    <button id="btnSalir1" class="btn-salir">Salir</button>
+  </div>
+
+   <div class="pie-copyright">
+    <span class="aptos">COPYRIGHT @</span><span class="brushscript">Chef Maria del Pilar López</span>
+  </div>
+</div>
+
+<div id="pantalla2" class="pantalla">
+  <div class="encabezado">BETANIA – BAKERY</div>
+  <h2 class="titulo-pantalla">Consultar Recetas</h2>
+  <button id="btnPreparacionSal">Preparación de Sal</button>
+  <button id="btnPreparacionDulce">Preparación Dulce</button>
+  <button id="btnPreparacionAgridulce">Preparación Agridulce</button>
+
+  <div class="botones-pie">
+    <button id="btnAtrasPantalla2" class="btn-atras">Atrás</button>
+    <button id="btnMenuPrincipal2" class="btn-menu-principal">Menú Principal</button>
+    <button id="btnSalir2" class="btn-salir">Salir</button>
+  </div>
+
+   <div class="pie-copyright">
+    <span class="aptos">COPYRIGHT @</span><span class="brushscript">Chef Maria del Pilar López</span>
+  </div>
+</div>
+
+<div id="pantalla2_1" class="pantalla">
+  <div class="encabezado">BETANIA – BAKERY</div>
+  <h2 class="titulo-pantalla">Preparación de Sal</h2>
+  <button id="btnEntradas">Entradas</button>
+  <button id="btnPlatosPrincipales">Platos Principales</button>
+  <button id="btnGuarniciones">Guarniciones</button>
+  <button id="btnSalsaCondimento">Salsa y Condimento</button>
+
+  <div class="botones-pie">
+    <button id="btnAtrasPantalla2_1" class="btn-atras">Atrás</button>
+    <button id="btnMenuPrincipal2_1" class="btn-menu-principal">Menú Principal</button>
+    <button id="btnSalir2_1" class="btn-salir">Salir</button>
+  </div>
+
+   <div class="pie-copyright">
+    <span class="aptos">COPYRIGHT @</span><span class="brushscript">Chef Maria del Pilar López</span>
+  </div>
+</div>
+
+<div id="pantalla2_1_2" class="pantalla">
+  <div class="encabezado">BETANIA – BAKERY</div>
+  <h2 class="titulo-pantalla">Platos Principales</h2>
+  <button id="btnCarnes">Carnes</button>
+  <button id="btnPollo">Pollo</button>
+  <button id="btnPastas">Pastas</button>
+  <button id="btnArroces">Arroces</button>
+  <button id="btnGuisosSopas">Guisos y Sopas</button>
+
+  <div class="botones-pie">
+    <button id="btnAtrasPantalla2_1_2" class="btn-atras">Atrás</button>
+    <button id="btnMenuPrincipal2_1_2" class="btn-menu-principal">Menú Principal</button>
+    <button id="btnSalir2_1_2" class="btn-salir">Salir</button>
+  </div>
+
+   <div class="pie-copyright">
+    <span class="aptos">COPYRIGHT @</span><span class="brushscript">Chef Maria del Pilar López</span>
+  </div>
+</div>
+
+<div id="pantalla2_2" class="pantalla">
+  <div class="encabezado">BETANIA – BAKERY</div>
+  <h2 class="titulo-pantalla">Preparación Dulce</h2>
+  <button id="btnPostres">Postres</button>
+  <button id="btnPanaderia">Panadería</button>
+  <button id="btnFrutasAfin">Frutas y Afín</button>
+  <button id="btnBebidasOtros">Bebidas y Otros</button>
+
+  <div class="botones-pie">
+    <button id="btnAtrasPantalla2_2" class="btn-atras">Atrás</button>
+    <button id="btnMenuPrincipal2_2" class="btn-menu-principal">Menú Principal</button>
+    <button id="btnSalir2_2" class="btn-salir">Salir</button>
+  </div>
+
+   <div class="pie-copyright">
+    <span class="aptos">COPYRIGHT @</span><span class="brushscript">Chef Maria del Pilar López</span>
+  </div>
+</div>
+
+<div id="pantalla2_3" class="pantalla">
+  <div class="encabezado">BETANIA – BAKERY</div>
+  <h2 class="titulo-pantalla">Preparación Agridulce</h2>
+  <button id="btnCarnesAgridulces">Carnes Agridulces</button>
+  <button id="btnSalsasAgridulces">Salsas Agridulces</button>
+  <button id="btnEnsaladasFrutas">Ensaladas y Frutas</button>
+  <button id="btnPlatosAsiaticos">Platos Asiáticos</button>
+
+  <div class="botones-pie">
+    <button id="btnAtrasPantalla2_3" class="btn-atras">Atrás</button>
+    <button id="btnMenuPrincipal2_3" class="btn-menu-principal">Menú Principal</button>
+    <button id="btnSalir2_3" class="btn-salir">Salir</button>
+  </div>
+
+   <div class="pie-copyright">
+    <span class="aptos">COPYRIGHT @</span><span class="brushscript">Chef Maria del Pilar López</span>
+  </div>
+</div>
+
+<div id="pantalla3" class="pantalla">
+  <div class="encabezado">BETANIA – BAKERY</div>
+  <h2 class="titulo-pantalla">Crear Recetas</h2>
+
+  <div class="form-content"> <div class="form-row">
+        <div class="form-column">
+            <input type="text" class="form-element input-display" value="Tipo de Preparación" readonly>
+        </div>
+        <div class="form-column">
+            <select id="selectTipoPreparacion" class="form-element">
+                <option value="">Selec. 1</option>
+                <option value="Sal">Sal</option>
+                <option value="Dulce">Dulce</option>
+                <option value="Agridulce">Agridulce</option>
+            </select>
+        </div>
+    </div>
+
+     <div class="form-row">
+        <div class="form-column">
+            <input type="text" id="inputTipoPreparacionSeleccion" class="form-element input-display" value="Temp. 1" readonly>
+        </div>
+        <div class="form-column">
+            <select id="selectCategoria" class="form-element">
+                <option value="">Selec. 2</option>
+                </select>
+        </div>
+    </div>
+
+     <div class="form-row">
+          <div class="form-column">
+               <input type="text" id="inputSubcategoriaSeleccion" class="form-element input-display" value="Temp. 2" readonly>
+          </div>
+          <div class="form-column">
+               <div class="select-with-button">
+                   <select id="selectSubcategoria" class="form-element">
+                      <option value="">Selec. 3</option>
+                      </select>
+                  <button id="btnHelpSubcategory" class="help-button">?</button>
+               </div>
+          </div>
+      </div>
+
+     <button id="btnGuardarContinuar">Guardar y Continuar</button>
+  </div>
+
+  <div id="helpInfoBox" class="help-info-box">
+      Información de ayuda temporal.
+  </div>
+
+
+  <div class="botones-pie">
+     <button id="btnAtrasPantalla3" class="btn-atras">Atrás</button>
+    <button id="btnMenuPrincipal3" class="btn-menu-principal">Menú Principal</button>
+    <button id="btnSalir3" class="btn-salir">Salir</button>
+  </div>
+
+   <div class="pie-copyright">
+    <span class="aptos">COPYRIGHT @</span><span class="brushscript">Chef Maria del Pilar López</span>
+  </div>
+</div>
+
+<div id="pantalla4" class="pantalla">
+  <div class="encabezado">BETANIA – BAKERY</div>
+  <h2 class="titulo-pantalla">Modificar Recetas</h2>
+  <p style="text-align:center;">Página en construcción.</p>
+
+  <div class="botones-pie">
+    <button id="btnAtrasPantalla4" class="btn-atras">Atrás</button>
+    <button id="btnMenuPrincipal4" class="btn-menu-principal">Menú Principal</button>
+    <button id="btnSalir4" class="btn-salir">Salir</button>
+  </div>
+
+   <div class="pie-copyright">
+    <span class="aptos">COPYRIGHT @</span><span class="brushscript">Chef Maria del Pilar López</span>
+  </div>
+</div>
+
+<script>
+  // Función para mostrar solo una pantalla
+  function mostrarPantalla(idPantalla) {
+    console.log('Mostrando pantalla:', idPantalla); // Log de consola
+    const pantallas = document.querySelectorAll('.pantalla');
+    pantallas.forEach(p => p.classList.remove('activa'));
+    const pantalla = document.getElementById(idPantalla);
+    if (pantalla) {
+      pantalla.classList.add('activa');
+      console.log('Pantalla', idPantalla, 'activada.'); // Log de consola
+    } else {
+      console.error('Error: Pantalla con ID', idPantalla, 'no encontrada.'); // Log de error
+    }
+  }
+
+  // Función para mostrar mensaje "Pagina en Construcción"
+  function paginaEnConstruccion() {
+    console.log('Función paginaEnConstruccion ejecutada.'); // Log de consola
+    alert('Página en Construcción');
+  }
+
+  // Función para "cerrar la aplicación" - en navegador solo se puede cerrar ventana abierta por script, aquí simulamos
+  function cerrarAplicacion() {
+    console.log('Función cerrarAplicacion ejecutada. Intentando cerrar ventana.'); // Log de consola
+    if (confirm('¿Está seguro que desea salir de la aplicación?')) {
+       if (window.opener) {
+         window.close();
+       } else {
+         alert('La aplicación ha sido cerrada (simulado).');
+       }
+    }
+  }
+
+  // Mapeo de opciones para Select 2 basado en Select 1
+  const opcionesSelect2 = {
+    "Sal": ["Entradas", "Platos Principales", "Guarniciones", "Salsa y Condimento"],
+    "Dulce": ["Postres", "Panadería", "Frutas y Afín", "Bebidas y Otros"],
+    "Agridulce": ["Proteínas agridulces", "Salsas agridulces", "Ensaladas", "Platos Asiáticos"]
+  };
+
+   // Mapeo de opciones para Select 3 basado en Select 2
+   const opcionesSelect3 = {
+       "Entradas": ["Frías", "Calientes", "De transición"],
+       "Platos Principales": ["Carnes", "Pescado/Marisco", "Vegetariano/Vegano", "Pasta/Arroz/Cereal", "Internacional/Fusiones"],
+       "Guarniciones": ["Vegetales", "Carbohidratos", "Fusión/Especiales"],
+       "Salsa y Condimento": ["Bases", "Condimento Aromático", "Aderezo de Texturas"],
+       "Postres": ["Clásicos", "Fríos y cremosos", "Fusión/innovador"],
+       "Panadería": ["Básicos", "Repostería Dulce", "Alternativos"],
+       "Frutas y Afín": ["Estado Natural", "Cocidos", "Elaborados"],
+       "Bebidas y Otros": ["Calientes", "Frías", "Cremosos"],
+       "Proteínas agridulces": ["Carnes", "Pescado/Mariscos", "Vegetales/Otros"],
+       "Salsas agridulces": ["Clásicas", "Picantes/Aromáticas", "Modernas/Fusión"],
+       "Ensaladas": ["Vegetales/ Frutas", "Proteínas", "Fermentadas/Pickleadas"], // La clave coincide con opcionesSelect2["Agridulce"][2]
+       "Platos Asiáticos": ["Clásicos/Salsas", "Fermentadas/Pickleadas", "Carne/Tofu/Cítricos"] // La clave coincide con opcionesSelect2["Agridulce"][3]
+   };
+
+   // Mapeo de textos de ayuda para el botón "?" - **ACTUALIZADO con Platos Principales (Sal)**
+   const helpTexts = {
+       "Sal": {
+           "Entradas": {
+               "Frías": "Ejemplos:\n- Ensaladas (César, griega, caprese).\n- Tartares (carne, salmón).\n- Ceviche, carpaccio.\n- Canapés fríos (smoked salmon on toast).\n- Patés y dips (hummus, guacamole).\n(Se sirven sin cocción o previamente enfriadas)",
+               "Calientes": "Ejemplos:\n- Empanadas, croquetas, buñuelos.\n- Queso fundido (raclette, fondue).\n- Sopas y cremas calientes (sopa de cebolla).\n- Brochetas o pinchos calientes.\n(Requieren cocción y se sirven tibias o recién hechas)",
+               "De transición": "Ejemplos:\n- Tablas de embutidos y quesos (mezcla de temperaturas).\n- Sushi (pescado frío con arroz tibio).\n- DIY (armar tus tacos, wraps o tostadas).\n(Involucran participación del comensal o combinan frío/caliente)"
+           },
+           "Platos Principales": {
+                "Carnes": "Ejemplos:\n- Carnes rojas: Filete, asado, ribs.\n- Aves: Pollo asado, duck confit.\n- Otras: Cordero, conejo, vísceras (mollejas)\n(Preparaciones donde la proteína animal es protagonista)",
+                "Pescado/Marisco": "Ejemplos:\n- Pescados: Salmón a la parrilla, bacalao al pil-pil.\n- Mariscos: Paella marinera, langosta termidor.\n- Crudos: Tiradito, sushi (como plato principal).\n(Platos basados en productos del mar)",
+                "Vegetariano/Vegano": "Ejemplos:\n- Legumbres: Curry de lentejas, falafel.\n- Vegetales: Ratatouille, berenjenas a la parmesana.\n- Sustitutos: \"Carne\" de soja, hamburguesas veganas\n(Sin ingredientes de origen animal o con proteínas vegetales)",
+                "Pasta/Arroz/Cereal": "Ejemplos:\n- Pastas: Lasagna, espagueti carbonara.\n- Arroces: Risotto, arroz chaufa.\n- Otros: Quinua, cuscús, polenta.\n(Platos energéticos basados en harinas o granos)",
+                "Internacional/Fusiones": "Ejemplos:\n- Asiáticos: Pad thai, ramen, teriyaki.\n- Mexicanos: Mole poblano, chiles en nogada.\n- Fusiones: Sushi pizza, tacos coreanos.\n(Platos típicos de otras culturas o mezclas creativas)"
+           },
+           // **NUEVO:** Textos de ayuda para Guarniciones bajo Sal
+            "Guarniciones": {
+                "Vegetales": "Ejemplos:\n- Crudas: Ensalada verde, juliana de zanahoria, coleslaw.\n- Cocidas: Puré de papa, espárragos al vapor, brócoli gratinado.\n- Salteadas/Horneadas: Champiñones salteados, verduras asadas (ratatouille).\n(Basadas en verduras, crudas o cocidas, con técnicas simples)",
+                "Carbohidratos": "Ejemplos:\n- Arroces: Arroz blanco, arroz pilaf, arroz con vegetales.\n- Pastas: Tallarines al ajillo, espagueti simple.\n- Tubérculos y otros: Papas fritas, puré de camote, polenta.\n(Acompañamientos energéticos, ideales para balancear platos proteicos)",
+                "Fusión/Especiales": "Ejemplos:\n- Mixtas: Risotto de hongos, quinoa con vegetales.\n- Innovadoras: Puré de coliflor con trufa, chips de kale.\n- Internacionales: Frijoles refritos (mexicano), kimchi (coreano).\n(Preparaciones con ingredientes combinados o técnicas gourmet)"
+            },
+            // **NUEVO:** Textos de ayuda para Salsas y Condimentos bajo Sal
+            "Salsa y Condimento": {
+                "Bases": "Ejemplos:\n- Salsa blanca (Bechamel) – Para gratinados y cremas.\n- Salsa de tomate (Española o Pomodoro) – Bases para pastas y guisos.\n- Salsa holandesa o mayonesa – Emulsiones para acompañar o enriquecer.\n(Preparaciones clásicas que sirven como base para otras salsas)",
+                "Condimento Aromático": "Ejemplos:\n- Picantes: Salsa tabasco, sriracha, chimichurri.\n- Herbáceas: Pesto, salsa verde, chermoula.\n- Fermentados: Salsa de soja, miso, mostaza.\n(Potencian el sabor con hierbas, especias o fermentación)",
+                "Aderezo de Texturas": "Ejemplos:\n- Cremosas: Salsa tártara, ranch, alioli.\n- Ligeras: Vinagreta, salsa griega (tzatziki).\n- Texturizadas: Salsa romesco, guacamole, hummus.\n(Aportan cremosidad, frescura o contraste crujiente)"
+            }
+       }
+   };
+
+
+  // Evento DOM cargado
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM completamente cargado. Configurando event listeners.'); // Log de consola
+
+    // --- Obtener referencias a todos los elementos una sola vez ---
+    // PANTALLA 1
+    const btnConsultarRecetas = document.getElementById('btnConsultarRecetas');
+    const btnCrearRecetas = document.getElementById('btnCrearRecetas');
+    const btnModificarRecetas = document.getElementById('btnModificarRecetas');
+    const btnSalir1 = document.getElementById('btnSalir1');
+
+    // PANTALLA 2
+    const btnPreparacionSal = document.getElementById('btnPreparacionSal');
+    const btnPreparacionDulce = document.getElementById('btnPreparacionDulce');
+    const btnPreparacionAgridulce = document.getElementById('btnPreparacionAgridulce');
+    const btnAtrasPantalla2 = document.getElementById('btnAtrasPantalla2');
+    const btnMenuPrincipal2 = document.getElementById('btnMenuPrincipal2');
+    const btnSalir2 = document.getElementById('btnSalir2');
+
+    // PANTALLA 2.1
+    const btnEntradas = document.getElementById('btnEntradas');
+    const btnPlatosPrincipales = document.getElementById('btnPlatosPrincipales');
+    const btnGuarniciones = document.getElementById('btnGuarniciones');
+    const btnSalsaCondimento = document.getElementById('btnSalsaCondimento');
+    const btnAtrasPantalla2_1 = document.getElementById('btnAtrasPantalla2_1');
+    const btnMenuPrincipal2_1 = document.getElementById('btnMenuPrincipal2_1');
+    const btnSalir2_1 = document.getElementById('btnSalir2_1');
+
+    // PANTALLA 2.1.2
+    const btnCarnes = document.getElementById('btnCarnes');
+    const btnPollo = document.getElementById('btnPollo');
+    const btnPastas = document.getElementById('btnPastas');
+    const btnArroces = document.getElementById('btnArroces');
+    const btnGuisosSopas = document.getElementById('btnGuisosSopas');
+    const btnAtrasPantalla2_1_2 = document.getElementById('btnAtrasPantalla2_1_2');
+    const btnMenuPrincipal2_1_2 = document.getElementById('btnMenuPrincipal2_1_2');
+    const btnSalir2_1_2 = document.getElementById('btnSalir2_1_2');
+
+    // PANTALLA 2.2
+    const btnPostres = document.getElementById('btnPostres');
+    const btnPanaderia = document.getElementById('btnPanaderia');
+    const btnFrutasAfin = document.getElementById('btnFrutasAfin');
+    const btnBebidasOtros = document.getElementById('btnBebidasOtros');
+    const btnAtrasPantalla2_2 = document.getElementById('btnAtrasPantalla2_2');
+    const btnMenuPrincipal2_2 = document.getElementById('btnMenuPrincipal2_2');
+    const btnSalir2_2 = document.getElementById('btnSalir2_2');
+
+    // PANTALLA 2.3
+    const btnCarnesAgridulces = document.getElementById('btnCarnesAgridulces');
+    const btnSalsasAgridulces = document.getElementById('btnSalsasAgridulces');
+    const btnEnsaladasFrutas = document.getElementById('btnEnsaladasFrutas');
+    const btnPlatosAsiaticos = document.getElementById('btnPlatosAsiaticos');
+    const btnAtrasPantalla2_3 = document.getElementById('btnAtrasPantalla2_3');
+    const btnMenuPrincipal2_3 = document.getElementById('btnMenuPrincipal2_3');
+    const btnSalir2_3 = document.getElementById('btnSalir2_3');
+
+    // PANTALLA 3 Elementos
+    const selectTipoPreparacion = document.getElementById('selectTipoPreparacion'); // Selec. 1
+    const inputTipoPreparacionSeleccion = document.getElementById('inputTipoPreparacionSeleccion'); // Campo texto 2da fila
+    const selectCategoria = document.getElementById('selectCategoria'); // Selec. 2
+    const inputSubcategoriaSeleccion = document.getElementById('inputSubcategoriaSeleccion'); // Campo texto 3ra fila
+    const selectSubcategoria = document.getElementById('selectSubcategoria'); // Selec. 3
+    const btnGuardarContinuar = document.getElementById('btnGuardarContinuar');
+    const btnAtrasPantalla3 = document.getElementById('btnAtrasPantalla3');
+    const btnMenuPrincipal3 = document.getElementById('btnMenuPrincipal3');
+    const btnSalir3 = document.getElementById('btnSalir3');
+    const btnHelpSubcategory = document.getElementById('btnHelpSubcategory'); // Botón de ayuda
+    const helpInfoBox = document.getElementById('helpInfoBox'); // Cuadro de información de ayuda
+
+
+    // --- Configuración de Event Listeners (usando las variables declaradas arriba) ---
+
+    // PANTALLA 1
+    if(btnConsultarRecetas) btnConsultarRecetas.addEventListener('click', () => { console.log('Click en btnConsultarRecetas'); mostrarPantalla('pantalla2'); });
+    if(btnCrearRecetas) btnCrearRecetas.addEventListener('click', () => { console.log('Click en btnCrearRecetas'); mostrarPantalla('pantalla3'); });
+    if(btnModificarRecetas) btnModificarRecetas.addEventListener('click', () => { console.log('Click en btnModificarRecetas'); mostrarPantalla('pantalla4'); });
+    if(btnSalir1) btnSalir1.addEventListener('click', () => { console.log('Click en btnSalir1'); cerrarAplicacion(); });
+
+    // PANTALLA 2
+    if(btnPreparacionSal) btnPreparacionSal.addEventListener('click', () => { console.log('Click en btnPreparacionSal'); mostrarPantalla('pantalla2_1'); });
+    if(btnPreparacionDulce) btnPreparacionDulce.addEventListener('click', () => { console.log('Click en btnPreparacionDulce'); mostrarPantalla('pantalla2_2'); });
+    if(btnPreparacionAgridulce) btnPreparacionAgridulce.addEventListener('click', () => { console.log('Click en btnPreparacionAgridulce'); mostrarPantalla('pantalla2_3'); });
+    if(btnAtrasPantalla2) btnAtrasPantalla2.addEventListener('click', () => { console.log('Click en btnAtrasPantalla2'); mostrarPantalla('pantalla1'); });
+    if(btnMenuPrincipal2) btnMenuPrincipal2.addEventListener('click', () => { console.log('Click en btnMenuPrincipal2'); mostrarPantalla('pantalla1'); });
+    if(btnSalir2) btnSalir2.addEventListener('click', () => { console.log('Click en btnSalir2'); cerrarAplicacion(); });
+
+    // PANTALLA 2.1
+    if(btnEntradas) btnEntradas.addEventListener('click', () => { console.log('Click en btnEntradas'); paginaEnConstruccion(); });
+    if(btnPlatosPrincipales) btnPlatosPrincipales.addEventListener('click', () => { console.log('Click en btnPlatosPrincipales'); mostrarPantalla('pantalla2_1_2'); });
+    if(btnGuarniciones) btnGuarniciones.addEventListener('click', () => { console.log('Click en btnGuarniciones'); paginaEnConstruccion(); });
+    if(btnSalsaCondimento) btnSalsaCondimento.addEventListener('click', () => { console.log('Click en btnSalsaCondimento'); paginaEnConstruccion(); });
+    if(btnAtrasPantalla2_1) btnAtrasPantalla2_1.addEventListener('click', () => { console.log('Click en btnAtrasPantalla2_1'); mostrarPantalla('pantalla2'); });
+    if(btnMenuPrincipal2_1) btnMenuPrincipal2_1.addEventListener('click', () => { console.log('Click en btnMenuPrincipal2_1'); mostrarPantalla('pantalla1'); });
+    if(btnSalir2_1) btnSalir2_1.addEventListener('click', () => { console.log('Click en btnSalir2_1'); cerrarAplicacion(); });
+
+    // PANTALLA 2.1.2
+    if(btnCarnes) btnCarnes.addEventListener('click', () => { console.log('Click en btnCarnes'); paginaEnConstruccion(); });
+    if(btnPollo) btnPollo.addEventListener('click', () => { console.log('Click en btnPollo'); paginaEnConstruccion(); });
+    if(btnPastas) btnPastas.addEventListener('click', () => { console.log('Click en btnPastas'); paginaEnConstruccion(); });
+    if(btnArroces) btnArroces.addEventListener('click', () => { console.log('Click en btnArroces'); paginaEnConstruccion(); });
+    if(btnGuisosSopas) btnGuisosSopas.addEventListener('click', () => { console.log('Click en btnGuisosSopas'); paginaEnConstruccion(); });
+    if(btnAtrasPantalla2_1_2) btnAtrasPantalla2_1_2.addEventListener('click', () => { console.log('Click en btnAtrasPantalla2_1_2'); mostrarPantalla('pantalla2_1'); });
+    if(btnMenuPrincipal2_1_2) btnMenuPrincipal2_1_2.addEventListener('click', () => { console.log('Click en btnMenuPrincipal2_1_2'); mostrarPantalla('pantalla1'); });
+    if(btnSalir2_1_2) btnSalir2_1_2.addEventListener('click', () => { console.log('Click en btnSalir2_1_2'); cerrarAplicacion(); });
+
+      // PANTALLA 2.2
+      if(btnPostres) btnPostres.addEventListener('click', () => { console.log('Click en btnPostres'); paginaEnConstruccion(); });
+      if(btnPanaderia) btnPanaderia.addEventListener('click', () => { console.log('Click en btnPanaderia'); paginaEnConstruccion(); });
+      if(btnFrutasAfin) btnFrutasAfin.addEventListener('click', () => { console.log('Click en btnFrutasAfin'); paginaEnConstruccion(); });
+      if(btnBebidasOtros) btnBebidasOtros.addEventListener('click', () => { console.log('Click en btnBebidasOtros'); paginaEnConstruccion(); });
+      if(btnAtrasPantalla2_2) btnAtrasPantalla2_2.addEventListener('click', () => { console.log('Click en btnAtrasPantalla2_2'); mostrarPantalla('pantalla2'); });
+      if(btnMenuPrincipal2_2) btnMenuPrincipal2_2.addEventListener('click', () => { console.log('Click en btnMenuPrincipal2_2'); mostrarPantalla('pantalla1'); });
+      if(btnSalir2_2) btnSalir2_2.addEventListener('click', () => { console.log('Click en btnSalir2_2'); cerrarAplicacion(); });
+
+      // PANTALLA 2.3
+      if(btnCarnesAgridulces) btnCarnesAgridulces.addEventListener('click', () => { console.log('Click en btnCarnesAgridulces'); paginaEnConstruccion(); });
+      if(btnSalsasAgridulces) btnSalsasAgridulces.addEventListener('click', () => { console.log('Click en btnSalsasAgridulces'); paginaEnConstruccion(); }); // Corregido: Usar la variable btnSalsasAgridulces
+      if(btnEnsaladasFrutas) btnEnsaladasFrutas.addEventListener('click', () => { console.log('Click en btnEnsaladasFrutas'); paginaEnConstruccion(); });
+      if(btnPlatosAsiaticos) btnPlatosAsiaticos.addEventListener('click', () => { console.log('Click en btnPlatosAsiaticos'); paginaEnConstruccion(); });
+      if(btnAtrasPantalla2_3) btnAtrasPantalla2_3.addEventListener('click', () => { console.log('Click en btnAtrasPantalla2_3'); mostrarPantalla('pantalla2'); });
+      if(btnMenuPrincipal2_3) btnMenuPrincipal2_3.addEventListener('click', () => { console.log('Click en btnMenuPrincipal2_3'); mostrarPantalla('pantalla1'); });
+      if(btnSalir2_3) btnSalir2_3.addEventListener('click', () => { console.log('Click en btnSalir2_3'); cerrarAplicacion(); });
+
+
+    // PANTALLA 3 - Lógica para los nuevos elementos y sus botones de pie
+    // Event listener para el cambio en Select 1 (Tipo de Preparación)
+    if(selectTipoPreparacion) {
+      selectTipoPreparacion.addEventListener('change', (event) => {
+          console.log('Evento change en selectTipoPreparacion. Valor:', event.target.value);
+          const seleccionTipoPrep = event.target.value;
+          if (seleccionTipoPrep) {
+              if(inputTipoPreparacionSeleccion) inputTipoPreparacionSeleccion.value = `Tipo de preparación de ${seleccionTipoPrep}`;
+
+              // Limpiar y poblar Select 2 (Categoría)
+              if(selectCategoria) {
+                selectCategoria.innerHTML = '<option value="">Selec. 2</option>';
+                const categorias = opcionesSelect2[seleccionTipoPrep];
+                if (categorias) {
+                    categorias.forEach(categoria => {
+                        const option = document.createElement('option');
+                        option.value = categoria;
+                        option.textContent = categoria;
+                        selectCategoria.appendChild(option);
+                    });
+                }
+                selectCategoria.disabled = false;
+                console.log('SelectCategoria habilitado y poblado para:', seleccionTipoPrep);
+              }
+          } else {
+              // Reset cuando Selec. 1 vuelve a vacío
+              if(inputTipoPreparacionSeleccion) inputTipoPreparacionSeleccion.value = "Temp. 1";
+              if(selectCategoria) {
+                 selectCategoria.innerHTML = '<option value="">Selec. 2</option>';
+                 selectCategoria.disabled = true;
+                 console.log('SelectCategoria deshabilitado y reseteado.');
+              }
+          }
+           // Limpiar y deshabilitar Select 2 y Select 3, y resetear campo texto 3ra fila al cambiar Select 1
+           if(selectCategoria) selectCategoria.value = "";
+           if(selectSubcategoria) {
+             selectSubcategoria.innerHTML = '<option value="">Selec. 3</option>';
+             selectSubcategoria.disabled = true;
+             console.log('SelectSubcategoria deshabilitado y reseteado.');
+           }
+           if(inputSubcategoriaSeleccion) inputSubcategoriaSeleccion.value = "Temp. 2";
+      });
+    }
+
+    // Event listener para el cambio en Select 2 (Categoría)
+    if(selectCategoria) {
+        selectCategoria.addEventListener('change', (event) => {
+            console.log('Evento change en selectCategoria. Valor:', event.target.value);
+            const seleccionCategoria = event.target.value;
+
+            // Actualizar el texto del campo de visualización de la 3ra fila
+            if(inputSubcategoriaSeleccion) {
+                if(seleccionCategoria) {
+                    inputSubcategoriaSeleccion.value = seleccionCategoria;
+                     console.log('inputSubcategoriaSeleccion actualizado a:', seleccionCategoria);
+                } else {
+                    inputSubcategoriaSeleccion.value = "Temp. 2";
+                    console.log('inputSubcategoriaSeleccion reseteado a Temp. 2');
+                }
+            }
+
+            // Limpiar y poblar Select 3 (Subcategoría)
+            if(selectSubcategoria) {
+                selectSubcategoria.innerHTML = '<option value="">Selec. 3</option>'; // Reset options
+                const subcategorias = opcionesSelect3[seleccionCategoria]; // Buscar subcategorías en el mapeo
+                if (subcategorias) {
+                    subcategorias.forEach(subcategoria => {
+                        const option = document.createElement('option');
+                        option.value = subcategoria;
+                        option.textContent = subcategoria;
+                        selectSubcategoria.appendChild(option);
+                    });
+                    selectSubcategoria.disabled = false; // Habilitar Select 3 si hay opciones
+                    console.log('SelectSubcategoria habilitado y poblado para:', seleccionCategoria);
+                } else {
+                    selectSubcategoria.disabled = true; // Deshabilitar Select 3 si no hay opciones
+                     console.log('SelectSubcategoria deshabilitado (no hay subcategorías para):', seleccionCategoria);
+                }
+            }
+             // Reset Select 3 value on Select 2 change
+            if(selectSubcategoria) selectSubcategoria.value = "";
+        });
+    }
+     // Deshabilitar Select 3 al inicio
+     if(selectSubcategoria) selectSubcategoria.disabled = true;
+
+
+     // Event listener para el botón Guardar y Continuar (Ejemplo: mostrar alerta con 3 selecciones)
+     if(btnGuardarContinuar) {
+        btnGuardarContinuar.addEventListener('click', () => {
+            console.log('Click en btnGuardarContinuar');
+            const tipoPrep = selectTipoPreparacion ? selectTipoPreparacion.value : '';
+            const categoria = selectCategoria ? selectCategoria.value : '';
+            const subcategoria = selectSubcategoria ? selectSubcategoria.value : ''; // Obtener selección de Select 3
+
+            if (!tipoPrep) {
+                alert("Por favor, selecciona un Tipo de Preparación (Selec. 1).");
+                console.log('Validación fallida: Tipo de Preparación vacío.');
+                return;
+            }
+            if (!categoria) {
+                alert("Por favor, selecciona una Categoría (Selec. 2).");
+                 console.log('Validación fallida: Categoría vacía.');
+                return;
+            }
+             if (!subcategoria && selectSubcategoria && !selectSubcategoria.disabled) { // Solo validar si Select 3 NO está deshabilitado
+                 alert("Por favor, selecciona una Subcategoría (Selec. 3).");
+                  console.log('Validación fallida: Subcategoría vacía.');
+                 return;
+             }
+
+
+            alert(`Datos seleccionados para guardar:\nTipo de Preparación: ${tipoPrep}\nCategoría: ${categoria}\nSubcategoría: ${subcategoria || 'N/A'}\n(Funcionalidad de guardar aún no implementada)`);
+             console.log('Validación exitosa. Alerta mostrada con:', {tipoPrep, categoria, subcategoria: subcategoria || 'N/A'});
+        });
+     }
+
+    // Lógica para mostrar/ocultar cuadro de ayuda al pasar el ratón
+    if(btnHelpSubcategory && helpInfoBox && selectTipoPreparacion && selectCategoria && selectSubcategoria) {
+        btnHelpSubcategory.addEventListener('mouseover', () => {
+            console.log('Mouseover en botón de ayuda');
+            const tipoPrep = selectTipoPreparacion.value;
+            const categoria = selectCategoria.value;
+            const subcategoria = selectSubcategoria.value;
+
+            let infoText = "Información de ayuda no disponible para esta combinación."; // Mensaje por defecto
+
+            // Construir la ruta en el objeto helpTexts
+            if (helpTexts[tipoPrep] && helpTexts[tipoPrep][categoria] && helpTexts[tipoPrep][categoria][subcategoria]) {
+                 infoText = helpTexts[tipoPrep][categoria][subcategoria];
+                 console.log('Texto de ayuda encontrado:', infoText);
+            } else {
+                 console.log('No hay texto de ayuda específico para:', {tipoPrep, categoria, subcategoria});
+                 // Opcional: Puedes agregar un mensaje más útil si la combinación no tiene texto específico
+                 // infoText = `Información no disponible para: ${tipoPrep || 'N/A'} > ${categoria || 'N/A'} > ${subcategoria || 'N/A'}`;
+            }
+
+            helpInfoBox.textContent = infoText; // Establecer el texto
+            helpInfoBox.classList.add('visible'); // Mostrar la caja
+        });
+
+        btnHelpSubcategory.addEventListener('mouseout', () => {
+            console.log('Mouseout en botón de ayuda');
+            helpInfoBox.classList.remove('visible'); // Ocultar la caja
+             // Opcional: Limpiar el texto al ocultar
+             // helpInfoBox.textContent = '';
+        });
+    } else {
+         console.error('Error: No se encontraron todos los elementos necesarios para la lógica del botón de ayuda.');
+    }
+
+
+    // Botones de pie para Pantalla 3
+    if(btnAtrasPantalla3) btnAtrasPantalla3.addEventListener('click', () => { console.log('Click en btnAtrasPantalla3'); mostrarPantalla('pantalla1'); }); // Atrás va a Pantalla 1
+    if(btnMenuPrincipal3) btnMenuPrincipal3.addEventListener('click', () => { console.log('Click en btnMenuPrincipal3'); mostrarPantalla('pantalla1'); });
+    if(btnSalir3) btnSalir3.addEventListener('click', () => { console.log('Click en btnSalir3'); cerrarAplicacion(); });
+
+
+    // PANTALLA 4 - Botones de pie
+    if(btnAtrasPantalla4) btnAtrasPantalla4.addEventListener('click', () => { console.log('Click en btnAtrasPantalla4'); mostrarPantalla('pantalla1'); }); // Atrás va a Pantalla 1
+    if(btnMenuPrincipal4) btnMenuPrincipal4.addEventListener('click', () => { console.log('Click en btnMenuPrincipal4'); mostrarPantalla('pantalla1'); });
+    if(btnSalir4) btnSalir4.addEventListener('click', () => { console.log('Click en btnSalir4'); cerrarAplicacion(); });
+
+  });
+</script>
+
+</body>
+</html>
